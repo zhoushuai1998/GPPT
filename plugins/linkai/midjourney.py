@@ -5,7 +5,6 @@ import requests
 import threading
 import time
 from bridge.reply import Reply, ReplyType
-import aiohttp
 import asyncio
 from bridge.context import ContextType
 from plugins import EventContext, EventAction
@@ -68,8 +67,7 @@ class MJTask:
 # midjourney bot
 class MJBot:
     def __init__(self, config):
-        self.base_url = "https://api.link-ai.chat/v1/img/midjourney"
-
+        self.base_url = conf().get("linkai_api_base", "https://api.link-ai.chat") + "/v1/img/midjourney"
         self.headers = {"Authorization": "Bearer " + conf().get("linkai_api_key")}
         self.config = config
         self.tasks = {}
@@ -97,7 +95,7 @@ class MJBot:
                 return TaskType.VARIATION
             elif cmd_list[0].lower() == f"{trigger_prefix}mjr":
                 return TaskType.RESET
-        elif context.type == ContextType.IMAGE_CREATE and self.config.get("use_image_create_prefix"):
+        elif context.type == ContextType.IMAGE_CREATE and self.config.get("use_image_create_prefix") and self.config.get("enabled"):
             return TaskType.GENERATE
 
     def process_mj_task(self, mj_type: TaskType, e_context: EventContext):
